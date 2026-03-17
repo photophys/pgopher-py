@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+from typing import Optional
 
 
 class Parity(Enum):
@@ -35,7 +36,7 @@ class Lambda(Enum):
     PHI = "Phi"
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True, kw_only=True)
 class LinearState:
     """
     Base class representing a rovibronic state of a linear molecule.
@@ -45,17 +46,19 @@ class LinearState:
     Attributes:
         spin_multiplicity (int): Spin multiplicity S = 2S + 1.
         lambda_symmetry (Lambda): Projection Λ of electronic orbital angular momentum.
+        parity (Parity, optional): Inversion symmetry of the state (gerade or ungerade).
         rotational_constant (float): Rotational constant B (cm⁻¹).
         lambda_ss (float): Spin-spin coupling constant (cm⁻¹), currently unused.
     """
 
     spin_multiplicity: int
     lambda_symmetry: Lambda
+    parity: Optional[Parity] = None
     rotational_constant: float
     # lambda_ss: float  # LambdaSS
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True, kw_only=True)
 class LinearGroundState(LinearState):
     """
     Ground electronic and vibrational state of a linear molecule.
@@ -66,6 +69,7 @@ class LinearGroundState(LinearState):
     Inherits all attributes from LinearState:
         spin_multiplicity (int)
         lambda_symmetry (Lambda)
+        parity (Parity, optional): Inversion symmetry of the state (gerade or ungerade).
         rotational_constant (float)
         lambda_ss (float)
     """
@@ -73,7 +77,7 @@ class LinearGroundState(LinearState):
     pass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True, kw_only=True)
 class LinearExcitedState(LinearState):
     """
     Excited electronic and/or vibrational state of a linear molecule.
@@ -82,17 +86,16 @@ class LinearExcitedState(LinearState):
 
     Attributes:
         origin (float): Electronic or vibronic origin energy relative to the ground state (cm⁻¹).
-        parity (Parity): Inversion symmetry of the state (gerade or ungerade).
 
     Inherits all attributes from LinearState:
         spin_multiplicity (int)
         lambda_symmetry (Lambda)
+        parity (Parity, optional): Inversion symmetry of the state (gerade or ungerade).
         rotational_constant (float)
         lambda_ss (float)
     """
 
     origin: float
-    parity: Parity
 
 
 @dataclass
