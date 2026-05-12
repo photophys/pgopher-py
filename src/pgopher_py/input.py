@@ -2,9 +2,9 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 from pathlib import Path
 
-from .types import SimulationParams, Parity
-from .utils import format_int, format_float
-
+from .datatypes import SimulationParams, Parity
+from .utils import format_int, format_float, Origin, Rotational_Const
+ 
 
 def write_linear_spectrum_xml(file: Path, params: SimulationParams, print_input: bool):
     """
@@ -63,8 +63,8 @@ def generate_linear_spectrum_xml(params: SimulationParams) -> str:
         species,
         "LinearMolecule",
         Name="LinearMolecule",
-        # Symmetric=str(params.symmetric),
-        # AsymWt=format_int(params.asym_weight),
+        Symmetric=str(params.symmetric),
+        AsymWt=format_int(params.asym_weight),
     )
 
     # Ground manifold
@@ -75,21 +75,28 @@ def generate_linear_spectrum_xml(params: SimulationParams) -> str:
         Initial="True",
         LimitSearch="True",
     )
+    for vib in params.ground.vibrations:
 
-    ground_state = ET.SubElement(
-        ground_manifold,
-        "Linear",
-        Name="v=0",
-        S=format_int(params.ground.spin_multiplicity),
-        Lambda=params.ground.lambda_symmetry.value,
+        ground_state = ET.SubElement(
+            ground_manifold,
+            "Linear",
+            Name=f"v={vib}",
+            S=format_int(params.ground.spin_multiplicity),
+            Lambda=params.ground.lambda_symmetry.value,
+        )
+        ET.SubElement(
+            ground_state,
+            "Parameter",
+            Name="Origin",
+            Value=format_float(Origin(vib, params.ground.origin, params.ground.vibrational_constants)),
     )
 
-    ET.SubElement(
-        ground_state,
-        "Parameter",
-        Name="B",
-        Value=format_float(params.ground.rotational_constant),
-    )
+        ET.SubElement(
+            ground_state,
+            "Parameter",
+            Name="B",
+            Value=format_float(Rotational_Const(vib, params.ground.rotational_constant, params.ground.alpha)),
+        )
     # ET.SubElement(
     #     ground_state,
     #     "Parameter",
@@ -104,28 +111,28 @@ def generate_linear_spectrum_xml(params: SimulationParams) -> str:
         Name="Excited",
         LimitSearch="True",
     )
+    for vib in params.excited.vibrations:
+        excited_state = ET.SubElement(
+            excited_manifold,
+            "Linear",
+            Name=f"v={vib}",
+            S=format_int(params.excited.spin_multiplicity),
+            Lambda=params.excited.lambda_symmetry.value,
+            gerade="True" if params.excited.parity == Parity.gerade else "False",
+        )
 
-    excited_state = ET.SubElement(
-        excited_manifold,
-        "Linear",
-        Name="v=1",
-        S=format_int(params.excited.spin_multiplicity),
-        Lambda=params.excited.lambda_symmetry.value,
-        gerade="True" if params.excited.parity == Parity.gerade else "False",
-    )
-
-    ET.SubElement(
-        excited_state,
-        "Parameter",
-        Name="Origin",
-        Value=format_float(params.excited.origin),
-    )
-    ET.SubElement(
-        excited_state,
-        "Parameter",
-        Name="B",
-        Value=format_float(params.excited.rotational_constant),
-    )
+        ET.SubElement(
+            excited_state,
+            "Parameter",
+            Name="Origin",
+            Value=format_float(Origin(vib, params.excited.origin, params.excited.vibrational_constants)),
+        )
+        ET.SubElement(
+            excited_state,
+            "Parameter",
+            Name="B",
+            Value=format_float(Rotational_Const(vib, params.excited.rotational_constant, params.excited.alpha)),
+        )
     # ET.SubElement(
     #     excited_state,
     #     "Parameter",
@@ -140,13 +147,14 @@ def generate_linear_spectrum_xml(params: SimulationParams) -> str:
         Bra="Excited",
         Ket="Ground",
     )
-
-    ET.SubElement(
-        transitions,
-        "SphericalTransitionMoment",
-        Bra="v=1",
-        Ket="v=0",
-    )
+    for vib_ground in params.ground.vibrations:
+        for vib_exited in params.excited.vibrations:
+            ET.SubElement(
+                transitions,
+                "SphericalTransitionMoment",
+                Bra=f"v={vib_exited}",
+                Ket=f"v={vib_ground}",
+            )
 
     # Temperature
     ET.SubElement(

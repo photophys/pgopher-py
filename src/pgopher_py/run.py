@@ -4,7 +4,7 @@ from pathlib import Path
 import os
 
 from .input import write_linear_spectrum_xml
-from .types import SimulationParams
+from .datatypes import SimulationParams
 
 
 class PgopherError(RuntimeError):
