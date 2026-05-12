@@ -1,6 +1,6 @@
 from .parse import parse_csv_output, PgopherSpectrum
 from .run import run_pgopher
-from .types import LinearGroundState, LinearExcitedState, SimulationParams
+from .datatypes import LinearGroundState, LinearExcitedState, SimulationParams
 
 
 def simulate_spectrum(
