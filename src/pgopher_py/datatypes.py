@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+import numpy as np
+import numpy.typing as npt
 from enum import Enum
 from typing import Optional
 
@@ -49,6 +51,9 @@ class LinearState:
         parity (Parity, optional): Inversion symmetry of the state (gerade or ungerade).
         rotational_constant (float): Rotational constant B (cm⁻¹).
         lambda_ss (float): Spin-spin coupling constant (cm⁻¹), currently unused.
+        vibrations (list): list of exited vibrational states included in simulation default [0,1,2,3,4]
+        alpha (float): rotational constant - first term (cm-1)
+        vibrational constants (list): vibrational constants [ω_e, ω_ex_e, ω_ey_e, ω_ez_e] only ω_e required others optional 
     """
 
     spin_multiplicity: int
@@ -56,6 +61,9 @@ class LinearState:
     parity: Optional[Parity] = None
     rotational_constant: float
     # lambda_ss: float  # LambdaSS
+    vibrational_constants: tuple[float, ...] 
+    vibrations: tuple[int, ...] = (0,1,2,3,4) 
+    alpha: float = 0
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -72,9 +80,12 @@ class LinearGroundState(LinearState):
         parity (Parity, optional): Inversion symmetry of the state (gerade or ungerade).
         rotational_constant (float)
         lambda_ss (float)
+        vibrations (list)
+        oritin (float)
     """
-
-    pass
+    
+    origin: float = 0
+    
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -93,6 +104,8 @@ class LinearExcitedState(LinearState):
         parity (Parity, optional): Inversion symmetry of the state (gerade or ungerade).
         rotational_constant (float)
         lambda_ss (float)
+        vibrations(list)
+        origin (float)
     """
 
     origin: float
@@ -116,5 +129,5 @@ class SimulationParams:
     excited: LinearExcitedState
     temperature: float
     j_max: int = 100
-    # symmetric: bool = True
-    # asym_weight: int = 0
+    symmetric: bool = True
+    asym_weight: int = 0
