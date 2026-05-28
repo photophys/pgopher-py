@@ -149,11 +149,18 @@ def generate_linear_spectrum_xml(params: SimulationParams) -> str:
     )
     for vib_ground in params.ground.vibrations:
         for vib_exited in params.excited.vibrations:
-            ET.SubElement(
+            transformation_moment = ET.SubElement(
                 transitions,
                 "SphericalTransitionMoment",
                 Bra=f"v={vib_exited}",
                 Ket=f"v={vib_ground}",
+            )
+
+            ET.SubElement(
+                transformation_moment, 
+                "Parameter",
+                Name="Strength",
+                Value=format_float(params.franck_condon_matrix[vib_ground, vib_exited]),
             )
 
     # Temperature

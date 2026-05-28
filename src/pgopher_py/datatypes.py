@@ -1,9 +1,9 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import numpy as np
 import numpy.typing as npt
 from enum import Enum
 from typing import Optional
-
+from .utils import Frank_Cordon_Matrix
 
 class Parity(Enum):
     """
@@ -111,7 +111,7 @@ class LinearExcitedState(LinearState):
     origin: float
 
 
-@dataclass
+@dataclass(frozen=True)
 class SimulationParams:
     """
     Parameters defining a linear molecule spectrum simulation.
@@ -128,6 +128,10 @@ class SimulationParams:
     ground: LinearGroundState
     excited: LinearExcitedState
     temperature: float
+    franck_condon_matrix: np.ndarray 
     j_max: int = 100
     symmetric: bool = True
     asym_weight: int = 0
+
+    def __post_init__(self):
+        pass

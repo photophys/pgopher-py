@@ -1,3 +1,4 @@
+import numpy as np 
 from .parse import parse_csv_output, PgopherSpectrum
 from .run import run_pgopher
 from .datatypes import LinearGroundState, LinearExcitedState, SimulationParams
@@ -7,6 +8,7 @@ def simulate_spectrum(
     ground: LinearGroundState,
     excited: LinearExcitedState,
     temperature: float,
+    franck_condon_matrix: np.ndarray,
     j_max: int = 100,
     print_xml_input: bool = False,
     timeout: int = 30,
@@ -41,6 +43,7 @@ def simulate_spectrum(
             ground=ground,
             excited=excited,
             temperature=temperature,
+            franck_condon_matrix=franck_condon_matrix,
             j_max=j_max,
         ),
         timeout=timeout,
