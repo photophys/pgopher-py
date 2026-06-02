@@ -5,6 +5,10 @@ from enum import Enum
 from typing import Optional
 from .utils import Frank_Cordon_Matrix
 
+
+class PgopherError(RuntimeError):
+    """Base exception for PGOPHER-related failures."""
+
 class Parity(Enum):
     """
     Inversion parity.

@@ -4,11 +4,9 @@ from pathlib import Path
 import os
 
 from .input import write_linear_spectrum_xml
-from .datatypes import SimulationParams
+from .datatypes import SimulationParams, PgopherError
 
 
-class PgopherError(RuntimeError):
-    """Base exception for PGOPHER-related failures."""
 
 
 def run_pgopher(params: SimulationParams, print_xml_input: bool, timeout: int) -> bytes:

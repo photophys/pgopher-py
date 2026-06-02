@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from .datatypes import PgopherError
 
 
 @dataclass
@@ -48,5 +49,9 @@ def parse_csv_output(stdout: bytes) -> PgopherSpectrum:
 
         except:
             continue
+    if not E: 
+        raise PgopherError(
+            "Could not extract any transition energies from PGOPHER simulation"
+        )
 
     return PgopherSpectrum(energies=E, intensities=I)
