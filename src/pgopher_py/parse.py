@@ -1,5 +1,8 @@
 from dataclasses import dataclass
-from .datatypes import PgopherError
+from io import StringIO
+import csv
+import re
+from .datatypes import PgopherError, StateInformation, TransitionInformation
 
 
 @dataclass
@@ -14,6 +17,10 @@ class PgopherSpectrum:
 
     energies: list[float]
     intensities: list[float]
+    transitions: list[TransitionInformation]
+
+
+
 
 
 def parse_csv_output(stdout: bytes) -> PgopherSpectrum:
@@ -24,34 +31,46 @@ def parse_csv_output(stdout: bytes) -> PgopherSpectrum:
         stdout (bytes): Raw stdout bytes returned by the `pgo` executable.
 
     Returns:
-        PgopherResult: Spectrum containing energies and intensities.
+        PgopherResult: Spectrum containing energies, intensities and labeling information.
 
     Notes:
         - The first two lines of the output are skipped (PGOPHER version info, csv header).
         - Lines that cannot be parsed are silently ignored.
         - Assumes energies are in the 10th column (index 9) and intensities in the 11th column (index 10).
     """
+   
+    lines = iter(stdout.decode().splitlines())
+    next(lines)  # skip metadata
+    reader = csv.DictReader(lines)
     E = []
     I = []
-
-    for line_idx, line in enumerate(stdout.split(b"\n")):
-        if line_idx < 2:
+    transitions = []
+    for row in reader: 
+        if row.get("Label") is None:
             continue
-
         try:
-            parts = line.decode().split(",")
+            E.append(float(row["Position"]))
+            I.append(float(row["Intensity"]))
+            excited_text, ground_text = row["Label"].split(" - ")
+            vg, Fg = parse_label(ground_text)
+            ve, Fe = parse_label(excited_text)
+            ground = StateInformation(vg,float(row['J"']) ,row['Sym"'],Fg)
+            excited = StateInformation(ve, float(row["J'"]), row["Sym'"], Fe)
+            transitions.append(TransitionInformation(float(row["Position"]), float(row["Intensity"]), row["Branch"], ground, excited))
+        except: 
+            print(row)
+            raise ValueError("Could not parse line ")
+    return PgopherSpectrum(E, I, transitions)
 
-            energy = float(parts[9])
-            intensity = float(parts[10])
+def parse_label(label: str):
+     
+    v_match = re.search(r"v=(\d+)", label)
+    f_match = re.search(r"F\d", label)
 
-            E.append(energy)
-            I.append(intensity)
+    assert v_match is not None
+    assert f_match is not None
 
-        except:
-            continue
-    if not E: 
-        raise PgopherError(
-            "Could not extract any transition energies from PGOPHER simulation"
-        )
-
-    return PgopherSpectrum(energies=E, intensities=I)
+    return(
+        int(v_match.group(1)),
+        f_match.group(0)
+    )

@@ -4,6 +4,7 @@ import numpy.typing as npt
 from enum import Enum
 from typing import Optional
 from .utils import Frank_Cordon_Matrix
+import re
 
 
 class PgopherError(RuntimeError):
@@ -139,3 +140,41 @@ class SimulationParams:
 
     def __post_init__(self):
         pass
+
+@dataclass(slots=True, frozen=True)
+class StateInformation:
+    """
+    Information on a state of a specific transition extracted from pgopher 
+    Taken straight from pgopher Output see https://pgopher.chm.bris.ac.uk/Help/lineform.htm 
+    or https://pgopher.chm.bris.ac.uk/Help/linearmolecules.htm for more detail
+
+    
+
+    Attributes:
+        v(int): vibrational quantum number only thing taken from definition in Linearsate vibrations
+        J(float): The J quantum number  
+        parity(string): e/f according to PGOPHER definition
+        F(string): F component 
+    """
+    v: int
+    J: float
+    parity: str
+    F: str
+
+@dataclass(slots=True, frozen=True)
+class TransitionInformation:
+    """"
+    Information on a specific transitional line 
+
+    Attributes: 
+        position(float): Position of transition line 
+        intensity(float): Intensity of transition line 
+        branch (string): Branch label from PGOPHER (https://pgopher.chm.bris.ac.uk/Help/linearmolecules.htm)
+        ground(StateInformation): Information on the lower (ground) state
+        excited(StateInformation): Information on the upper (excited) state 
+    """
+    position: float
+    intensity: float
+    branch: str
+    ground: StateInformation
+    excited: StateInformation

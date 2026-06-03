@@ -6,26 +6,31 @@ from pgopher_py import (
     Parity,
 )
 from matplotlib import pyplot as plt
+import numpy as np
 from dotenv import load_dotenv
 
 load_dotenv()
 
 res = simulate_spectrum(
     ground=LinearGroundState(
-        spin_multiplicity=2,
-        lambda_symmetry=Lambda.SIGMA_PLUS,
-        rotational_constant=1.9812707,
+        spin_multiplicity=1,
+        lambda_symmetry=Lambda.SIGMA_MINUS,
+        rotational_constant=1.2,
+        vibrational_constants=(1600, 17, 2)
     ),
     excited=LinearExcitedState(
-        spin_multiplicity=2,
-        lambda_symmetry=Lambda.PI,
-        rotational_constant=1.5928686,
+        spin_multiplicity=1,
+        lambda_symmetry=Lambda.SIGMA_MINUS,
+        rotational_constant=0.7,
         origin=11807.956423,
-        parity=Parity.gerade,
+        parity=Parity.ungerade,
+        vibrational_constants=(900, 60, 3), 
     ),
-    temperature=200,
+    temperature=20000,
+    franck_condon_matrix=np.ones((5, 5))
     # print_xml_input=True,
 )
+# print(res.energies)
 
 plt.stem(res.energies, res.intensities, markerfmt=" ", basefmt=" ")
 plt.savefig("test.png", dpi=1200)
