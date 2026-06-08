@@ -4,7 +4,7 @@ from pathlib import Path
 
 from .datatypes import SimulationParams, Parity
 from .utils import format_int, format_float, Origin, Rotational_Const
- 
+
 
 def write_linear_spectrum_xml(file: Path, params: SimulationParams, print_input: bool):
     """
@@ -88,14 +88,20 @@ def generate_linear_spectrum_xml(params: SimulationParams) -> str:
             ground_state,
             "Parameter",
             Name="Origin",
-            Value=format_float(Origin(vib, params.ground.origin, params.ground.vibrational_constants)),
-    )
+            Value=format_float(
+                Origin(vib, params.ground.origin, params.ground.vibrational_constants)
+            ),
+        )
 
         ET.SubElement(
             ground_state,
             "Parameter",
             Name="B",
-            Value=format_float(Rotational_Const(vib, params.ground.rotational_constant, params.ground.alpha)),
+            Value=format_float(
+                Rotational_Const(
+                    vib, params.ground.rotational_constant, params.ground.alpha
+                )
+            ),
         )
     # ET.SubElement(
     #     ground_state,
@@ -125,13 +131,19 @@ def generate_linear_spectrum_xml(params: SimulationParams) -> str:
             excited_state,
             "Parameter",
             Name="Origin",
-            Value=format_float(Origin(vib, params.excited.origin, params.excited.vibrational_constants)),
+            Value=format_float(
+                Origin(vib, params.excited.origin, params.excited.vibrational_constants)
+            ),
         )
         ET.SubElement(
             excited_state,
             "Parameter",
             Name="B",
-            Value=format_float(Rotational_Const(vib, params.excited.rotational_constant, params.excited.alpha)),
+            Value=format_float(
+                Rotational_Const(
+                    vib, params.excited.rotational_constant, params.excited.alpha
+                )
+            ),
         )
     # ET.SubElement(
     #     excited_state,
@@ -157,7 +169,7 @@ def generate_linear_spectrum_xml(params: SimulationParams) -> str:
             )
 
             ET.SubElement(
-                transformation_moment, 
+                transformation_moment,
                 "Parameter",
                 Name="Strength",
                 Value=format_float(params.franck_condon_matrix[vib_ground, vib_exited]),
@@ -169,6 +181,14 @@ def generate_linear_spectrum_xml(params: SimulationParams) -> str:
         "Parameter",
         Name="Temperature",
         Value=format_float(params.temperature),
+    )
+
+    # Threshold for intensity cutoff
+    ET.SubElement(
+        mixture,
+        "Parameter",
+        Name="OThreshold",
+        Value=format_float(params.threshold),
     )
 
     # Pretty-print

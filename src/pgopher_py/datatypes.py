@@ -10,6 +10,7 @@ import re
 class PgopherError(RuntimeError):
     """Base exception for PGOPHER-related failures."""
 
+
 class Parity(Enum):
     """
     Inversion parity.
@@ -58,7 +59,7 @@ class LinearState:
         lambda_ss (float): Spin-spin coupling constant (cm⁻¹), currently unused.
         vibrations (list): list of exited vibrational states included in simulation default [0,1,2,3,4]
         alpha (float): rotational constant - first term (cm-1)
-        vibrational constants (list): vibrational constants [ω_e, ω_ex_e, ω_ey_e, ω_ez_e] only ω_e required others optional 
+        vibrational constants (list): vibrational constants [ω_e, ω_ex_e, ω_ey_e, ω_ez_e] only ω_e required others optional
     """
 
     spin_multiplicity: int
@@ -66,8 +67,8 @@ class LinearState:
     parity: Optional[Parity] = None
     rotational_constant: float
     # lambda_ss: float  # LambdaSS
-    vibrational_constants: tuple[float, ...] 
-    vibrations: tuple[int, ...] = (0,1,2,3,4) 
+    vibrational_constants: tuple[float, ...]
+    vibrations: tuple[int, ...] = (0, 1, 2, 3, 4)
     alpha: float = 0
 
 
@@ -88,9 +89,8 @@ class LinearGroundState(LinearState):
         vibrations (list)
         oritin (float)
     """
-    
+
     origin: float = 0
-    
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -133,46 +133,51 @@ class SimulationParams:
     ground: LinearGroundState
     excited: LinearExcitedState
     temperature: float
-    franck_condon_matrix: np.ndarray 
+    franck_condon_matrix: np.ndarray
     j_max: int = 100
     symmetric: bool = True
     asym_weight: int = 0
+    threshold: float = 1e-15
 
     def __post_init__(self):
         pass
 
+
 @dataclass(slots=True, frozen=True)
 class StateInformation:
     """
-    Information on a state of a specific transition extracted from pgopher 
-    Taken straight from pgopher Output see https://pgopher.chm.bris.ac.uk/Help/lineform.htm 
+    Information on a state of a specific transition extracted from pgopher
+    Taken straight from pgopher Output see https://pgopher.chm.bris.ac.uk/Help/lineform.htm
     or https://pgopher.chm.bris.ac.uk/Help/linearmolecules.htm for more detail
 
-    
+
 
     Attributes:
         v(int): vibrational quantum number only thing taken from definition in Linearsate vibrations
-        J(float): The J quantum number  
+        J(float): The J quantum number
         parity(string): e/f according to PGOPHER definition
-        F(string): F component 
+        F(string): F component
     """
+
     v: int
     J: float
     parity: str
     F: str
 
+
 @dataclass(slots=True, frozen=True)
 class TransitionInformation:
-    """"
-    Information on a specific transitional line 
+    """ "
+    Information on a specific transitional line
 
-    Attributes: 
-        position(float): Position of transition line 
-        intensity(float): Intensity of transition line 
+    Attributes:
+        position(float): Position of transition line
+        intensity(float): Intensity of transition line
         branch (string): Branch label from PGOPHER (https://pgopher.chm.bris.ac.uk/Help/linearmolecules.htm)
         ground(StateInformation): Information on the lower (ground) state
-        excited(StateInformation): Information on the upper (excited) state 
+        excited(StateInformation): Information on the upper (excited) state
     """
+
     position: float
     intensity: float
     branch: str

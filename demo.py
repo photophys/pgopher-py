@@ -26,11 +26,11 @@ res = simulate_spectrum(
         parity=Parity.ungerade,
         vibrational_constants=(900, 60, 3), 
     ),
-    temperature=20000,
+    temperature=300,
     franck_condon_matrix=np.ones((5, 5))
     # print_xml_input=True,
 )
-# print(res.energies)
+# print(res.transitions[:10])
 
 plt.stem(res.energies, res.intensities, markerfmt=" ", basefmt=" ")
 plt.savefig("test.png", dpi=1200)
